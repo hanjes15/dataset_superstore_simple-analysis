@@ -1,0 +1,157 @@
+import plotly
+import pandas as pd
+import plotly.graph_objects as go
+from plotly.offline import download_plotlyjs, init_notebook_mode,plot
+import numpy as np
+df = pd.read_csv("C:/Users/Public/Downloads/test py/Dataset_superstore_simple.csv", parse_dates=["order_date"]) #read Dataset_superstore_simple.csv in your own folder
+print(df.head())
+print(df.category.unique())
+print(df.dtypes)
+
+"""1. look for the customer_id who has the greatest sales"""
+print(df.sales.count()) #the number of rows of data
+a=max(df.sales)
+print(a) #max of sales
+print(df[df.sales==a].order_id.values[0]) #looking for order_id whose sales is max
+print(df.iloc[9033]) #mencari data lengkap dr row dengan index 9033 yg adalah sales terbesar
+
+"""
+2. What sub-categories are in the 'Office Supplies' category
+and how much is the total profit respectively? """
+print(df[df.category=="Office Supplies"].sub_category.unique())
+
+
+#Labels
+a=df[df.category=="Office Supplies"]
+print(sum(a[a.sub_category=="Labels"].profit))
+#Storage
+b=df[df.category=="Office Supplies"]
+print(sum(b[b.sub_category=="Storage"].profit))
+#Art
+c=df[df.category=="Office Supplies"]
+print(sum(c[c.sub_category=="Art"].profit))
+#Binders
+d=df[df.category=="Office Supplies"]
+print(sum(d[d.sub_category=="Binders"].profit))
+#Appliances
+e=df[df.category=="Office Supplies"]
+print(sum(e[e.sub_category=="Appliances"].profit))
+#Paper
+e=df[df.category=="Office Supplies"]
+print(sum(e[e.sub_category=="Paper"].profit))
+#Envelopes
+f=df[df.category=="Office Supplies"]
+print(sum(f[f.sub_category=="Envelopes"].profit))
+#Fasteners
+g=df[df.category=="Office Supplies"]
+print(sum(g[g.sub_category=="Fasteners"].profit))
+#Supplies
+h=df[df.category=="Office Supplies"]
+print(sum(h[h.sub_category=="Supplies"].profit))
+
+#or we use function
+def Total_Profit(x,y):
+    kategori=df[df.category==x]
+    sub_kategori=kategori[kategori.sub_category==y].profit
+    print(sum(sub_kategori))
+    return sum(sub_kategori)
+Total_Profit("Office Supplies","Supplies")
+
+
+"""3 How many orders resulted in negative profit (loss)?"""
+print(df[df.profit<0].profit.count())
+
+"""4. Among these 3 customer_id, which one has the most total sales: JE-16165, KH-16510, AD-10180?"""
+maxi=max(sum(df[df.customer_id=="JE-16165"].sales),sum(df[df.customer_id=="KH-16510"].sales),sum(df[df.customer_id=="AD-10180"].sales))
+a=["JE-16165","KH-16510","AD-10180"]
+for i in a:
+    if sum(df[df.customer_id==i].sales) == maxi:
+        print(i)
+
+"""
+5. Create a data frame called 'yearly_sales' which contains total sales, number of customers, and total profit for each year.
+What year was the highest profit made?
+"""
+urut=df.sort_values("order_date")
+urut["order_year"]=urut.order_date.dt.strftime("%Y")
+print(urut)
+a=list(urut.order_year.unique())
+print(a)
+b=[]
+for i in a:
+    b.append(sum(urut[urut.order_year==i].sales))
+c=[]
+for j in a:
+    c.append(urut[urut.order_year==j].order_year.count())
+d=[]
+for k in a:
+    d.append(sum(urut[urut.order_year==k].profit))
+print(b)
+print(c)
+print(d)
+yearly_sales = pd.DataFrame({
+    "Tahun":a,
+    "Total Sales":b,
+    "Jumlah Customers":c,
+    "Total Profit":d
+})
+print(yearly_sales)
+
+"""
+6. Make a scatterplot between sales and profit for the 2014-2015 data only,
+differentiate the colors between 2014 and 2015. Title it 'Sales vs Profit
+2014-2015 ' !
+"""
+data1 = go.Scatter(
+    x=urut[urut.order_year=="2014"].sales,
+    y=urut[urut.order_year=="2014"].profit,mode="markers",marker={"color":"red"},name="Sales VS Profit 2014"
+)
+
+data2 = go.Scatter(
+    x=urut[urut.order_year=="2015"].sales,
+    y=urut[urut.order_year=="2015"].profit,mode="markers",marker={"color":"blue"},name="Sales VS Profit 2015"
+)
+data=[data1,data2]
+fig=go.Figure(data=data)
+plot(fig)
+
+"""
+7. Make a barchart that contains the total profit of 10 customers with total sales
+highest in 2015!
+"""
+sales2015_1=urut[urut.order_year=="2015"]
+a=list(sales2015_1.customer_id.unique())
+b=[]
+c=[]
+for i in a:
+    b.append(sum(sales2015_1[sales2015_1.customer_id==i].sales))
+for j in a:
+    c.append(sum(sales2015_1[sales2015_1.customer_id==j].profit))
+table=pd.DataFrame(
+    {
+        "Customer_ID":a,
+        "Total_Sales":b,
+        "Profit":c,
+    }
+)
+print(table)
+table2=table.sort_values("Total_Sales",ascending=False)
+print(table2)
+table3=table2.head(10)
+print(table3)
+bar = go.Bar(
+    x=table3.Customer_ID,
+    y=table3.Profit,
+    name="Profit Customer Tahun 2015",
+)
+fig=go.Figure(data=bar)
+plot(fig)
+layout={
+    "title":{"text":"Profit 10 Customer dengan Sales Tertinggi Tahun 2015",
+             "x":0.5},
+"xaxis":{"title":"Customer ID"},
+"yaxis":{"title":"Profit"}}
+fig=go.Figure(data=bar,layout=layout)
+plot(fig)
+
+#cool!!!
