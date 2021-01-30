@@ -13,8 +13,7 @@ print(df.sales.count()) #the number of rows of data
 a=max(df.sales)
 print(a) #max of sales
 print(df[df.sales==a].order_id.values[0]) #looking for order_id whose sales is max
-print(df.iloc[9033]) #mencari data lengkap dr row dengan index 9033 yg adalah sales terbesar
-
+print(df.iloc[9033]) #looking for complete data from row with index 9033 which is the biggest sales
 """
 2. What sub-categories are in the 'Office Supplies' category
 and how much is the total profit respectively? """
